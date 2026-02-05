@@ -1,0 +1,61 @@
+# ----------------------------
+# Build output
+# ----------------------------
+bin/
+obj/
+out/
+
+# ----------------------------
+# User-specific files
+# ----------------------------
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+
+# ----------------------------
+# Visual Studio / Rider / VS Code
+# ----------------------------
+.vs/
+.idea/
+.vscode/
+
+# ----------------------------
+# .NET tooling
+# ----------------------------
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# ----------------------------
+# Test results
+# ----------------------------
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+
+# ----------------------------
+# Logs
+# ----------------------------
+*.log
+
+# ----------------------------
+# OS junk
+# ----------------------------
+.DS_Store
+Thumbs.db
+
+# ----------------------------
+# Environment & secrets
+# ----------------------------
+.env
+.env.*
+secrets.json
+
+# ----------------------------
+# NuGet
+# ----------------------------
+**/packages/*
+!**/packages/build/
