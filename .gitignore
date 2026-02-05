@@ -59,3 +59,5 @@ secrets.json
 # ----------------------------
 **/packages/*
 !**/packages/build/
+
+scratch.txt
