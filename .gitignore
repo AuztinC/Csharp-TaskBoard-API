@@ -61,3 +61,8 @@ secrets.json
 !**/packages/build/
 
 scratch.txt
+
+*.db
+*.db-shm
+*.db-wal
+
