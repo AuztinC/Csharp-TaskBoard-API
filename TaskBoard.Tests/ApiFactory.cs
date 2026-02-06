@@ -36,7 +36,7 @@ public class ApiFactory : WebApplicationFactory<Program>
             var db = scope.ServiceProvider.GetRequiredService<TaskBoardDbContext>();
 
             db.Database.EnsureDeleted();
-            db.Database.EnsureCreated();
+            db.Database.Migrate();
         });
     }
 

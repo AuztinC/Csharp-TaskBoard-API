@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text.Json;
 using TaskBoard.Api.Data;
 using Xunit.Abstractions;
 
@@ -13,6 +14,26 @@ public class TaskTests : IClassFixture<ApiFactory>
     {
         _client = factory.CreateClient();
         _output = output;
+    }
+
+    private async Task<TaskItem> CreateTaskAsync(string title)
+    {
+        var newTask = new StringContent($"\"{title}\"", System.Text.Encoding.UTF8, "application/json");
+        var postResponse = await _client.PostAsync("/tasks", newTask);
+        postResponse.EnsureSuccessStatusCode();
+
+        var body = await postResponse.Content.ReadAsStringAsync();
+        var created = JsonSerializer.Deserialize<TaskItem>(body, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        });
+
+        if (created == null)
+        {
+            throw new InvalidOperationException("POST /tasks did not return a task payload.");
+        }
+
+        return created;
     }
 
     [Fact]
@@ -33,6 +54,27 @@ public class TaskTests : IClassFixture<ApiFactory>
 
         var body = await response.Content.ReadAsStringAsync();
         Assert.Contains("", body);
+    }
+
+    [Fact]
+    public async Task GET_Task_By_ID_Bad_ID()
+    {
+        var created = await CreateTaskAsync("Seed Task");
+        var response = await _client.GetAsync($"/tasks/{created.Id + 1}");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GET_Task_By_ID()
+    {
+        var created = await CreateTaskAsync("New Task");
+        var response = await _client.GetAsync($"/tasks/{created.Id}");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var body = await response.Content.ReadAsStringAsync();
+        Assert.Contains("New Task", body);
     }
 
     [Fact]
@@ -59,13 +101,8 @@ public class TaskTests : IClassFixture<ApiFactory>
     [Fact]
     public async Task DELETE_Task()
     {
-        var newTask = new StringContent("\"New Task\"", System.Text.Encoding.UTF8, "application/json");
-        _ = await _client.PostAsync("/tasks", newTask);
-        var getResponse = await _client.GetAsync("/tasks");
-        var body = await getResponse.Content.ReadAsStringAsync();
-        Assert.Contains("New Task", body);
-
-        var deleteResponse = await _client.DeleteAsync("/tasks/1");
+        var created = await CreateTaskAsync("New Task");
+        var deleteResponse = await _client.DeleteAsync($"/tasks/{created.Id}");
         Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
     }
 }

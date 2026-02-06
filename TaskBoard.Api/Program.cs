@@ -26,14 +26,35 @@ app.MapGet("/ping", () => Results.Text("pong"));
 
 app.MapGet("/tasks", (TaskBoardDbContext db) => db.TaskItems.ToList());
 
+app.MapGet("/tasks/{id}", async (TaskBoardDbContext db, int id) =>
+{
+    var task = await db.TaskItems.FindAsync(id);
+    if (task == null)
+    {
+        return Results.NotFound();
+        
+    } else
+    {
+        return Results.Ok(task);
+    }
+});
+
 app.MapPost("/tasks", async (TaskBoardDbContext db, HttpRequest request) =>
 {
     using var reader = new StreamReader(request.Body);
     var title = await reader.ReadToEndAsync();
-   var newTask = new TaskItem { Title = title };
-   db.TaskItems.Add(newTask);
-   await db.SaveChangesAsync();
-   return Results.Created("/tasks", newTask);
+    if (title == "" || string.IsNullOrWhiteSpace(title))
+    {
+        return Results.BadRequest();
+        
+    }
+    
+    var newTask = new TaskItem { Title = title };
+    db.TaskItems.Add(newTask);
+    await db.SaveChangesAsync();
+    return Results.Created("/tasks", newTask);
+        
+    
 });
 
 app.MapDelete("/tasks/{id}", async (TaskBoardDbContext db, int id) =>
