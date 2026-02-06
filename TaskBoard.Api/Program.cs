@@ -36,6 +36,15 @@ app.MapPost("/tasks", async (TaskBoardDbContext db, HttpRequest request) =>
    return Results.Created("/tasks", newTask);
 });
 
+app.MapDelete("/tasks/{id}", async (TaskBoardDbContext db, int id) =>
+{
+    var task = await db.TaskItems.FindAsync(id);
+    if (task == null) return Results.NotFound();
+    db.TaskItems.Remove(task);
+    await db.SaveChangesAsync();
+    return Results.NoContent();
+});
+
 app.Run();
 
 public partial class Program { }
