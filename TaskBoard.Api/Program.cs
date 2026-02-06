@@ -22,21 +22,18 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var tasks = new List<string>
-{
-    "Task 1",
-    "Task 2",
-    "Task 3"
-};
-
 app.MapGet("/ping", () => Results.Text("pong"));
 
-app.MapGet("/tasks", () => tasks);
+app.MapGet("/tasks", (TaskBoardDbContext db) => db.TaskItems.ToList());
 
-app.MapPost("/tasks", async (HttpRequest request) =>
+app.MapPost("/tasks", async (TaskBoardDbContext db, HttpRequest request) =>
 {
-   tasks.Add("New Task");
-   return Results.Created("/tasks", tasks);
+    using var reader = new StreamReader(request.Body);
+    var title = await reader.ReadToEndAsync();
+   var newTask = new TaskItem { Title = title };
+   db.TaskItems.Add(newTask);
+   await db.SaveChangesAsync();
+   return Results.Created("/tasks", newTask);
 });
 
 app.Run();
