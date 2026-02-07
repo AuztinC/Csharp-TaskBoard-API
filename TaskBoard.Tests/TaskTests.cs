@@ -18,7 +18,7 @@ public class TaskTests : IClassFixture<ApiFactory>
 
     private async Task<TaskItem> CreateTaskAsync(string title)
     {
-        var newTask = new StringContent($"\"{title}\"", System.Text.Encoding.UTF8, "application/json");
+        var newTask = new StringContent($"{{\"Title\":\"{title}\"}}", System.Text.Encoding.UTF8, "application/json");
         var postResponse = await _client.PostAsync("/tasks", newTask);
         postResponse.EnsureSuccessStatusCode();
 
@@ -88,7 +88,7 @@ public class TaskTests : IClassFixture<ApiFactory>
     [Fact]
     public async Task POST_Creates_New_Task()
     {
-        var newTask = new StringContent("\"New Task\"", System.Text.Encoding.UTF8, "application/json");
+        var newTask = new StringContent("{\"Title\":\"New Task\"}", System.Text.Encoding.UTF8, "application/json");
         var postResponse = await _client.PostAsync("/tasks", newTask);
 
         Assert.Equal(HttpStatusCode.Created, postResponse.StatusCode);
@@ -96,6 +96,46 @@ public class TaskTests : IClassFixture<ApiFactory>
         var getResponse = await _client.GetAsync("/tasks");
         var body = await getResponse.Content.ReadAsStringAsync();
         Assert.Contains("New Task", body);
+    }
+
+    [Fact]
+    public async Task POST_Empty_Title_Returns_BadRequest()
+    {
+        var newTask = new StringContent("{\"Title\":\"\"}", System.Text.Encoding.UTF8, "application/json");
+        var postResponse = await _client.PostAsync("/tasks", newTask);
+        Assert.Equal(HttpStatusCode.BadRequest, postResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task PUT_Empty_Title_Returns_BadRequest()
+    {
+        var created = await CreateTaskAsync("New Task");
+
+        var updatedTask = new StringContent("{\"Title\":\"\"}", System.Text.Encoding.UTF8, "application/json");
+        var putResponse = await _client.PutAsync($"/tasks/{created.Id}", updatedTask);
+        Assert.Equal(HttpStatusCode.BadRequest, putResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task PUT_Bad_ID_Returns_NotFound()
+    {
+        var updatedTask = new StringContent("{\"Title\":\"Updated Task\"}", System.Text.Encoding.UTF8, "application/json");
+        var putResponse = await _client.PutAsync($"/tasks/9999", updatedTask);
+        Assert.Equal(HttpStatusCode.NotFound, putResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task PUT_Task()
+    {
+        var created = await CreateTaskAsync("New Task");
+
+        var updatedTask = new StringContent("{\"Title\":\"Updated Task\"}", System.Text.Encoding.UTF8, "application/json");
+        var putResponse = await _client.PutAsync($"/tasks/{created.Id}", updatedTask);
+        Assert.Equal(HttpStatusCode.OK, putResponse.StatusCode);
+
+        var getResponse = await _client.GetAsync($"/tasks/{created.Id}");
+        var body = await getResponse.Content.ReadAsStringAsync();
+        Assert.Contains("Updated Task", body);
     }
 
     [Fact]

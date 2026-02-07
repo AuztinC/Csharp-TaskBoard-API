@@ -24,7 +24,10 @@ app.UseHttpsRedirection();
 
 app.MapGet("/ping", () => Results.Text("pong"));
 
-app.MapGet("/tasks", (TaskBoardDbContext db) => db.TaskItems.ToList());
+app.MapGet("/tasks", async (TaskBoardDbContext db) =>
+    await db.TaskItems
+    .Select(t => new TaskResponse(t.Id, t.Title, t.IsComplete))
+    .ToListAsync());
 
 app.MapGet("/tasks/{id}", async (TaskBoardDbContext db, int id) =>
 {
@@ -32,29 +35,44 @@ app.MapGet("/tasks/{id}", async (TaskBoardDbContext db, int id) =>
     if (task == null)
     {
         return Results.NotFound();
-        
-    } else
+
+    }
+    else
     {
-        return Results.Ok(task);
+        return Results.Ok(new TaskResponse(task.Id, task.Title, task.IsComplete));
     }
 });
 
-app.MapPost("/tasks", async (TaskBoardDbContext db, HttpRequest request) =>
+app.MapPost("/tasks", async (TaskBoardDbContext db, CreateTaskRequest createTaskRequest) =>
 {
-    using var reader = new StreamReader(request.Body);
-    var title = await reader.ReadToEndAsync();
+    var title = createTaskRequest.Title;
     if (title == "" || string.IsNullOrWhiteSpace(title))
     {
         return Results.BadRequest();
-        
     }
-    
     var newTask = new TaskItem { Title = title };
     db.TaskItems.Add(newTask);
     await db.SaveChangesAsync();
-    return Results.Created("/tasks", newTask);
-        
-    
+    return Results.Created("/tasks", new TaskResponse(newTask.Id, newTask.Title, newTask.IsComplete));
+});
+
+app.MapPut("/tasks/{id}", async (TaskBoardDbContext db, int id, CreateTaskRequest updateTaskRequest) =>
+{
+    var task = await db.TaskItems.FindAsync(id);
+    if (task == null)
+    {
+        return Results.NotFound();
+    }
+
+    var title = updateTaskRequest.Title;
+    if (title == "" || string.IsNullOrWhiteSpace(title))
+    {
+        return Results.BadRequest();
+    }
+
+    task.Title = title;
+    await db.SaveChangesAsync();
+    return Results.Ok(new TaskResponse(task.Id, task.Title, task.IsComplete));
 });
 
 app.MapDelete("/tasks/{id}", async (TaskBoardDbContext db, int id) =>
@@ -67,5 +85,8 @@ app.MapDelete("/tasks/{id}", async (TaskBoardDbContext db, int id) =>
 });
 
 app.Run();
+
+public record CreateTaskRequest(string Title);
+public record TaskResponse(int Id, string Title, bool IsComplete);
 
 public partial class Program { }
