@@ -46,17 +46,18 @@ app.MapGet("/tasks/{id}", async (TaskBoardDbContext db, int id) =>
 app.MapPost("/tasks", async (TaskBoardDbContext db, CreateTaskRequest createTaskRequest) =>
 {
     var title = createTaskRequest.Title;
-    if (title == "" || string.IsNullOrWhiteSpace(title))
+    if (string.IsNullOrWhiteSpace(title))
     {
-        return Results.BadRequest();
+
+        return Results.BadRequest(new { Error = "Title cannot be empty." });
     }
     var newTask = new TaskItem { Title = title };
     db.TaskItems.Add(newTask);
     await db.SaveChangesAsync();
-    return Results.Created("/tasks", new TaskResponse(newTask.Id, newTask.Title, newTask.IsComplete));
+    return Results.Created($"/tasks/{newTask.Id}", new TaskResponse(newTask.Id, newTask.Title, newTask.IsComplete));
 });
 
-app.MapPut("/tasks/{id}", async (TaskBoardDbContext db, int id, CreateTaskRequest updateTaskRequest) =>
+app.MapPut("/tasks/{id}", async (TaskBoardDbContext db, int id, UpdateTaskRequest updateTaskRequest) =>
 {
     var task = await db.TaskItems.FindAsync(id);
     if (task == null)
@@ -67,7 +68,7 @@ app.MapPut("/tasks/{id}", async (TaskBoardDbContext db, int id, CreateTaskReques
     var title = updateTaskRequest.Title;
     if (title == "" || string.IsNullOrWhiteSpace(title))
     {
-        return Results.BadRequest();
+        return Results.BadRequest(new { Error = "Title cannot be empty." });
     }
 
     task.Title = title;
@@ -88,5 +89,7 @@ app.Run();
 
 public record CreateTaskRequest(string Title);
 public record TaskResponse(int Id, string Title, bool IsComplete);
+
+public record UpdateTaskRequest(string Title);
 
 public partial class Program { }

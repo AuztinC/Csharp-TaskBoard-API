@@ -40,7 +40,7 @@ public class TaskTests : IClassFixture<ApiFactory>
     public async Task Bad_Route_Returns_BadRequest()
     {
         var response = await _client.GetAsync("/blah");
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);   
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 
     }
 
@@ -49,7 +49,7 @@ public class TaskTests : IClassFixture<ApiFactory>
     {
         var response = await _client.GetAsync("/tasks");
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);   
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal("application/json; charset=utf-8", response.Content.Headers.ContentType?.ToString());
 
         var body = await response.Content.ReadAsStringAsync();
@@ -104,6 +104,7 @@ public class TaskTests : IClassFixture<ApiFactory>
         var newTask = new StringContent("{\"Title\":\"\"}", System.Text.Encoding.UTF8, "application/json");
         var postResponse = await _client.PostAsync("/tasks", newTask);
         Assert.Equal(HttpStatusCode.BadRequest, postResponse.StatusCode);
+        Assert.Contains("Title cannot be empty", await postResponse.Content.ReadAsStringAsync());
     }
 
     [Fact]
@@ -114,6 +115,7 @@ public class TaskTests : IClassFixture<ApiFactory>
         var updatedTask = new StringContent("{\"Title\":\"\"}", System.Text.Encoding.UTF8, "application/json");
         var putResponse = await _client.PutAsync($"/tasks/{created.Id}", updatedTask);
         Assert.Equal(HttpStatusCode.BadRequest, putResponse.StatusCode);
+        Assert.Contains("Title cannot be empty", await putResponse.Content.ReadAsStringAsync());
     }
 
     [Fact]
