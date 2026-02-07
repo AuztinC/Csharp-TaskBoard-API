@@ -19,16 +19,20 @@ builder.Services.AddCors(options =>
     });
 });
 
+
 var app = builder.Build();
 
+    app.MapOpenApi();
+var migrateOnStartup = app.Configuration.GetValue<bool>("MigrateOnStartup");
+app.Logger.LogInformation("MigrateOnStartup = {Value}", migrateOnStartup);
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (migrateOnStartup)
 {
     using var scope = app.Services.CreateScope();
-    var dbContext = scope.ServiceProvider.GetRequiredService<TaskBoardDbContext>();
+    var dbContext = scope.ServiceProvider
+                         .GetRequiredService<TaskBoardDbContext>();
     dbContext.Database.Migrate();
-    app.MapOpenApi();
 }
 
 app.UseHttpsRedirection();
