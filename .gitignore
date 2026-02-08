@@ -2,11 +2,10 @@
 # Build output
 # ----------------------------
 bin/
-bin\Debug/
-bin\Release/
+bin\Debug
+bin/Release/
 obj/
 out/
-
 # ----------------------------
 # User-specific files
 # ----------------------------
