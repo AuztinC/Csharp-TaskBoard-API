@@ -1,3 +1,5 @@
+[![build and test](https://github.com/AuztinC/Csharp-TaskBoard-API/actions/workflows/build-and-test.yaml/badge.svg)](https://github.com/AuztinC/Csharp-TaskBoard-API/actions/workflows/build-and-test.yaml)
+
 # Csharp-TaskBoard-API
 
 Minimal API for a task board with a SQLite backend.
