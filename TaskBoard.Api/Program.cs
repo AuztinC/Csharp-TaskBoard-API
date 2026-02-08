@@ -21,18 +21,29 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-    app.MapOpenApi();
+app.MapOpenApi();
 var migrateOnStartup = app.Configuration.GetValue<bool>("MigrateOnStartup");
 app.Logger.LogInformation("MigrateOnStartup = {Value}", migrateOnStartup);
 
 // Configure the HTTP request pipeline.
 if (args.Contains("--migrate") || migrateOnStartup)
 {
-    using var scope = app.Services.CreateScope();
-    var dbContext = scope.ServiceProvider
-                         .GetRequiredService<TaskBoardDbContext>();
-    dbContext.Database.Migrate();
-    return;
+    try
+    {
+        using var scope = app.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<TaskBoardDbContext>();
+        Console.WriteLine("MIGRATE MODE = " + args.Contains("--migrate"));
+        Console.WriteLine("CONN = " + app.Configuration.GetConnectionString("TaskBoardDb"));
+
+        db.Database.Migrate();
+        Console.WriteLine("MIGRATE SUCCESS");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("MIGRATE FAILED: " + ex);
+        throw;
+    }
+
 }
 
 app.UseHttpsRedirection();

@@ -6,8 +6,8 @@
 app = 'csharp-taskboard-api'
 primary_region = 'iad'
 
-[deploy]
-  release_command = "dotnet TaskBoard.Api.dll --migrate"
+[env]
+  MigrateOnStartup = "true"
 
 [mounts]
   source = "sqlite_data"
