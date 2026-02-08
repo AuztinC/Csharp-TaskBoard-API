@@ -44,3 +44,7 @@ docker compose -f TaskBoard.Api/docker-compose.yaml down
 
 - `GET /ping`
 - `GET /tasks`
+- `GET /tasks/{id}`
+- `POST /tasks`
+- `PUT /tasks/{id}`
+- `DELETE /tasks/{id}`
