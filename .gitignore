@@ -6,6 +6,10 @@ bin\Debug
 bin/Release/
 obj/
 out/
+/Debug/
+/Release/
+publish/
+net10.0/
 # ----------------------------
 # User-specific files
 # ----------------------------
