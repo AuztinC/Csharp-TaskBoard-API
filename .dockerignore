@@ -1,0 +1,11 @@
+**/bin/
+**bin\\Debug
+**/obj/
+**/.git/
+**/.vs/
+**/.idea/
+**/node_modules/
+**/dist/
+*.user
+*.suo
+*.cache
