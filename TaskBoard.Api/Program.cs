@@ -22,23 +22,23 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-string distPath = Path.Combine(Directory.GetCurrentDirectory(), "dist");
-if (!Directory.Exists(distPath))
+if (!app.Environment.IsEnvironment("Testing"))
 {
-    distPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "../taskboard-ui/dist"));
+    var distPath = Path.Combine(builder.Environment.ContentRootPath, "../taskboard-ui/dist");
+    distPath = Path.GetFullPath(distPath);
+
+    // Optional fallback for container builds
+    var distPath2 = Path.Combine(builder.Environment.ContentRootPath, "dist");
+
+    var chosen = Directory.Exists(distPath2) ? distPath2 : distPath;
+
+    if (Directory.Exists(chosen))
+    {
+        var distProvider = new PhysicalFileProvider(chosen);
+        app.UseDefaultFiles(new DefaultFilesOptions { FileProvider = distProvider });
+        app.UseStaticFiles(new StaticFileOptions { FileProvider = distProvider });
+    }
 }
-var distProvider = new PhysicalFileProvider(distPath);
-
-app.UseDefaultFiles(new DefaultFilesOptions
-{
-    FileProvider = distProvider
-});
-
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = distProvider,
-    RequestPath = ""
-});
 
 app.MapOpenApi();
 var migrateOnStartup = app.Configuration.GetValue<bool>("MigrateOnStartup");
