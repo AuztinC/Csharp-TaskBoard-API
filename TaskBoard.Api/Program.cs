@@ -1,5 +1,6 @@
 using TaskBoard.Api.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,24 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+string distPath = Path.Combine(Directory.GetCurrentDirectory(), "dist");
+if (!Directory.Exists(distPath))
+{
+    distPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "../taskboard-ui/dist"));
+}
+var distProvider = new PhysicalFileProvider(distPath);
+
+app.UseDefaultFiles(new DefaultFilesOptions
+{
+    FileProvider = distProvider
+});
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = distProvider,
+    RequestPath = ""
+});
 
 app.MapOpenApi();
 var migrateOnStartup = app.Configuration.GetValue<bool>("MigrateOnStartup");

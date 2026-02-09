@@ -2,11 +2,12 @@ services:
   taskboard-api:
     container_name: taskboard-api
     restart: unless-stopped
-    build: .
+    build: 
+      context: ..
+      dockerfile: TaskBoard.Api/Dockerfile
     ports:
-      - "8080:80"
+      - "8080:8080"
     environment:
-      - ASPNETCORE_URLS=http://+:80
       - ASPNETCORE_ENVIRONMENT=Development
       - MigrateOnStartup=true
       - ConnectionStrings__TaskBoardDb=Data Source=/app/data/taskboard.db
