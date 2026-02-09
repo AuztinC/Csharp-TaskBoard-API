@@ -25,7 +25,6 @@ app.MapOpenApi();
 var migrateOnStartup = app.Configuration.GetValue<bool>("MigrateOnStartup");
 app.Logger.LogInformation("MigrateOnStartup = {Value}", migrateOnStartup);
 
-// Configure the HTTP request pipeline.
 if (args.Contains("--migrate") || migrateOnStartup)
 {
     try
