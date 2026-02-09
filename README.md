@@ -2,22 +2,38 @@
 
 # Csharp-TaskBoard-API
 
-Minimal API for a task board with a SQLite backend.
+A Minimal API built with ASP.NET Core that exposes a simple task board backed by SQLite and Entity Framework Core.
+
+The project focuses on:
+
+- Clean project structure
+
+- Automated builds and tests
+
+- Database migrations
+
+- Local and containerized development
+
+Live deployment: 
+
+https://csharp-taskboard-api.fly.dev/ping
 
 # Run without Docker
 
 From the repo root:
 
+Restore NuGet packages for the solution.
 ```bash
-# Restore NuGet packages for the solution.
 dotnet restore
+```
 
-# Run the API project using the default Development settings.
+Run the API project using the default Development settings.
+```bash
 dotnet run --project TaskBoard.Api
 ```
 
-# If you want to auto-apply EF Core migrations on startup:
-Set an environment variable for this run to apply migrations automatically.
+## Auto-Apply EF Core Migrations
+To automatically apply database migrations on startup, set the following environment variable:
 
 ```bash
 MigrateOnStartup=true dotnet run --project TaskBoard.Api
@@ -27,16 +43,26 @@ MigrateOnStartup=true dotnet run --project TaskBoard.Api
 
 From the repo root:
 
+- Build the API image and start the container with the compose file.
 ```bash
-# Build the API image and start the container with the compose file.
-docker compose -f TaskBoard.Api/docker-compose.yaml up --build
+cd TaskBoard.Api
+docker-compose up --build
+```
+ Once a Docker container has been built with the last command.
+
+```
+docker-compose up
 ```
 
 The API is exposed at `http://localhost:8080`.
 
 
+- Stop containers
 ```bash
-# Stop containers and remove the compose resources.
+docker-compose down
+```
+-  and remove the compose resources.
+```bash
 docker compose -f TaskBoard.Api/docker-compose.yaml down
 ```
 

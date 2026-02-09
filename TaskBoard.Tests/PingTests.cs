@@ -18,7 +18,7 @@ public class PingTests : IClassFixture<WebApplicationFactory<Program>>
     [Fact]
     public async Task GET_Ping_Returns_Pong()
     {
-        var response = await _client.GetAsync("/ping");
+        var response = await _client.GetAsync("/api/ping");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);   
 

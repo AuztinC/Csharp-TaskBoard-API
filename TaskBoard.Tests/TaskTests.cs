@@ -19,7 +19,7 @@ public class TaskTests : IClassFixture<ApiFactory>
     private async Task<TaskItem> CreateTaskAsync(string title)
     {
         var newTask = new StringContent($"{{\"Title\":\"{title}\"}}", System.Text.Encoding.UTF8, "application/json");
-        var postResponse = await _client.PostAsync("/tasks", newTask);
+        var postResponse = await _client.PostAsync("/api/tasks", newTask);
         postResponse.EnsureSuccessStatusCode();
 
         var body = await postResponse.Content.ReadAsStringAsync();
@@ -47,7 +47,7 @@ public class TaskTests : IClassFixture<ApiFactory>
     [Fact]
     public async Task GET_Tasks_Returns_Tasks()
     {
-        var response = await _client.GetAsync("/tasks");
+        var response = await _client.GetAsync("/api/tasks");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal("application/json; charset=utf-8", response.Content.Headers.ContentType?.ToString());
@@ -60,7 +60,7 @@ public class TaskTests : IClassFixture<ApiFactory>
     public async Task GET_Task_By_ID_Bad_ID()
     {
         var created = await CreateTaskAsync("Seed Task");
-        var response = await _client.GetAsync($"/tasks/{created.Id + 1}");
+        var response = await _client.GetAsync($"/api/tasks/{created.Id + 1}");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -69,7 +69,7 @@ public class TaskTests : IClassFixture<ApiFactory>
     public async Task GET_Task_By_ID()
     {
         var created = await CreateTaskAsync("New Task");
-        var response = await _client.GetAsync($"/tasks/{created.Id}");
+        var response = await _client.GetAsync($"/api/tasks/{created.Id}");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -80,7 +80,7 @@ public class TaskTests : IClassFixture<ApiFactory>
     [Fact]
     public async Task POST_Without_Body_Returns_BadRequest()
     {
-        var response = await _client.PostAsync("/tasks", null);
+        var response = await _client.PostAsync("/api/tasks", null);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -89,11 +89,11 @@ public class TaskTests : IClassFixture<ApiFactory>
     public async Task POST_Creates_New_Task()
     {
         var newTask = new StringContent("{\"Title\":\"New Task\"}", System.Text.Encoding.UTF8, "application/json");
-        var postResponse = await _client.PostAsync("/tasks", newTask);
+        var postResponse = await _client.PostAsync("/api/tasks", newTask);
 
         Assert.Equal(HttpStatusCode.Created, postResponse.StatusCode);
 
-        var getResponse = await _client.GetAsync("/tasks");
+        var getResponse = await _client.GetAsync("/api/tasks");
         var body = await getResponse.Content.ReadAsStringAsync();
         Assert.Contains("New Task", body);
     }
@@ -102,7 +102,7 @@ public class TaskTests : IClassFixture<ApiFactory>
     public async Task POST_Empty_Title_Returns_BadRequest()
     {
         var newTask = new StringContent("{\"Title\":\"\"}", System.Text.Encoding.UTF8, "application/json");
-        var postResponse = await _client.PostAsync("/tasks", newTask);
+        var postResponse = await _client.PostAsync("/api/tasks", newTask);
         Assert.Equal(HttpStatusCode.BadRequest, postResponse.StatusCode);
         Assert.Contains("Title cannot be empty", await postResponse.Content.ReadAsStringAsync());
     }
@@ -113,7 +113,7 @@ public class TaskTests : IClassFixture<ApiFactory>
         var created = await CreateTaskAsync("New Task");
 
         var updatedTask = new StringContent("{\"Title\":\"\"}", System.Text.Encoding.UTF8, "application/json");
-        var putResponse = await _client.PutAsync($"/tasks/{created.Id}", updatedTask);
+        var putResponse = await _client.PutAsync($"/api/tasks/{created.Id}", updatedTask);
         Assert.Equal(HttpStatusCode.BadRequest, putResponse.StatusCode);
         Assert.Contains("Title cannot be empty", await putResponse.Content.ReadAsStringAsync());
     }
@@ -122,7 +122,7 @@ public class TaskTests : IClassFixture<ApiFactory>
     public async Task PUT_Bad_ID_Returns_NotFound()
     {
         var updatedTask = new StringContent("{\"Title\":\"Updated Task\"}", System.Text.Encoding.UTF8, "application/json");
-        var putResponse = await _client.PutAsync($"/tasks/9999", updatedTask);
+        var putResponse = await _client.PutAsync($"/api/tasks/9999", updatedTask);
         Assert.Equal(HttpStatusCode.NotFound, putResponse.StatusCode);
     }
 
@@ -132,10 +132,10 @@ public class TaskTests : IClassFixture<ApiFactory>
         var created = await CreateTaskAsync("New Task");
 
         var updatedTask = new StringContent("{\"Title\":\"Updated Task\"}", System.Text.Encoding.UTF8, "application/json");
-        var putResponse = await _client.PutAsync($"/tasks/{created.Id}", updatedTask);
+        var putResponse = await _client.PutAsync($"/api/tasks/{created.Id}", updatedTask);
         Assert.Equal(HttpStatusCode.OK, putResponse.StatusCode);
 
-        var getResponse = await _client.GetAsync($"/tasks/{created.Id}");
+        var getResponse = await _client.GetAsync($"/api/tasks/{created.Id}");
         var body = await getResponse.Content.ReadAsStringAsync();
         Assert.Contains("Updated Task", body);
     }
@@ -144,7 +144,7 @@ public class TaskTests : IClassFixture<ApiFactory>
     public async Task DELETE_Task()
     {
         var created = await CreateTaskAsync("New Task");
-        var deleteResponse = await _client.DeleteAsync($"/tasks/{created.Id}");
+        var deleteResponse = await _client.DeleteAsync($"/api/tasks/{created.Id}");
         Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
     }
 }

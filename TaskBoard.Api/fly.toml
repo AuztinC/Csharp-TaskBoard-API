@@ -6,8 +6,12 @@
 app = 'csharp-taskboard-api'
 primary_region = 'iad'
 
+[deploy]
+  strategy = "immediate"
+
 [env]
   MigrateOnStartup = "true"
+  ConnectionStrings__TaskBoardDb = "Data Source=/data/taskboard.db"
 
 [mounts]
   source = "sqlite_data"

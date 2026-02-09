@@ -49,14 +49,14 @@ if (args.Contains("--migrate") || migrateOnStartup)
 app.UseHttpsRedirection();
 app.UseCors();
 
-app.MapGet("/ping", () => Results.Text("pong"));
+app.MapGet("/api/ping", () => Results.Text("pong"));
 
-app.MapGet("/tasks", async (TaskBoardDbContext db) =>
+app.MapGet("/api/tasks", async (TaskBoardDbContext db) =>
     await db.TaskItems
     .Select(t => new TaskResponse(t.Id, t.Title, t.IsComplete))
     .ToListAsync());
 
-app.MapGet("/tasks/{id}", async (TaskBoardDbContext db, int id) =>
+app.MapGet("/api/tasks/{id}", async (TaskBoardDbContext db, int id) =>
 {
     var task = await db.TaskItems.FindAsync(id);
     if (task == null)
@@ -70,7 +70,7 @@ app.MapGet("/tasks/{id}", async (TaskBoardDbContext db, int id) =>
     }
 });
 
-app.MapPost("/tasks", async (TaskBoardDbContext db, CreateTaskRequest createTaskRequest) =>
+app.MapPost("/api/tasks", async (TaskBoardDbContext db, CreateTaskRequest createTaskRequest) =>
 {
     var title = createTaskRequest.Title;
     if (string.IsNullOrWhiteSpace(title))
@@ -84,7 +84,7 @@ app.MapPost("/tasks", async (TaskBoardDbContext db, CreateTaskRequest createTask
     return Results.Created($"/tasks/{newTask.Id}", new TaskResponse(newTask.Id, newTask.Title, newTask.IsComplete));
 });
 
-app.MapPut("/tasks/{id}", async (TaskBoardDbContext db, int id, UpdateTaskRequest updateTaskRequest) =>
+app.MapPut("/api/tasks/{id}", async (TaskBoardDbContext db, int id, UpdateTaskRequest updateTaskRequest) =>
 {
     var task = await db.TaskItems.FindAsync(id);
     if (task == null)
@@ -103,7 +103,7 @@ app.MapPut("/tasks/{id}", async (TaskBoardDbContext db, int id, UpdateTaskReques
     return Results.Ok(new TaskResponse(task.Id, task.Title, task.IsComplete));
 });
 
-app.MapDelete("/tasks/{id}", async (TaskBoardDbContext db, int id) =>
+app.MapDelete("/api/tasks/{id}", async (TaskBoardDbContext db, int id) =>
 {
     var task = await db.TaskItems.FindAsync(id);
     if (task == null) return Results.NotFound();
